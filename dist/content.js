@@ -1,6 +1,7 @@
 "use strict";
-console.log("Text Expander content script carregado!2");
+console.log("Text Expander content script carregado!");
 const expansions = {
+    dacm: "profissionalmente como programador senior no mercado e de acordo com as convenções da Microsoft e boas práticas",
     omw: "On my way!",
     brb: "Be right back.",
     ty: "Thank you!",
