@@ -1,1 +1,1 @@
-# extensions
+<img src="img/extension.png" width="1000" alt="Certificate">
