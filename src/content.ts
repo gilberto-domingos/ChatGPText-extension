@@ -1,18 +1,32 @@
+/// <reference types="chrome" />
+
 console.log("Text Expander content script carregado!");
 
-const expansions: Record<string, string> = {
-  dacm: "profissionalmente como programador senior no mercado e de acordo com as convenções da Microsoft e boas práticas",
-  omw: "On my way!",
-  brb: "Be right back.",
-  ty: "Thank you!",
-};
+let expansions: Record<string, string> = {};
+
+// Carrega os atalhos do storage do Chrome
+function loadExpansions() {
+  chrome.storage.sync.get("expansions", (data) => {
+    expansions = data.expansions || {};
+    console.log("Expansions carregadas:", expansions);
+  });
+}
+
+// Atualiza automaticamente se o storage for modificado
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === "sync" && changes.expansions) {
+    expansions = changes.expansions.newValue || {};
+    console.log("Expansions atualizadas dinamicamente:", expansions);
+  }
+});
+
+loadExpansions();
 
 document.addEventListener("input", (event) => {
   const target = event.target as HTMLElement;
   if (!target.isContentEditable) return;
 
   const text = target.innerText || "";
-
   const words = text.split(/\s+/);
   const lastWord = words[words.length - 1];
 
