@@ -1,3 +1,3 @@
 chrome.runtime.onInstalled.addListener(() => {
-  console.log("Background ativado!");
+  console.log("Background loaded !");
 });

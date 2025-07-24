@@ -2,7 +2,8 @@
   "manifest_version": 3,
   "name": "Text Expander",
   "version": "1.0",
-  "description": "Expande atalhos de texto exemplo: 'omw' para frases completas.",
+  "description": "Expande atalhos, configure 3 letras para frases grandes completas ou textos, exemplo: 'omw'  -> On my way",
+  "author": "by Gilberto Domingos",
   "permissions": ["storage"],
   "action": {
     "default_popup": "dist/popup.html",
@@ -22,8 +23,30 @@
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["dist/content.js"]
+      "matches": [
+        "https://chatgpt.com/*",
+        "https://chat.openai.com/*",
+        "https://gemini.google.com/*",
+        "https://perplexity.ai/*",
+        "https://*.perplexity.ai/*",
+        "https://you.com/*",
+        "https://google.com/*",
+        "https://www.google.com/*",
+        "https://www.google.com.br/*",
+        "https://www.bing.com/*",
+        "https://copilot.microsoft.com/*",
+        "https://claude.ai/*",
+        "https://huggingface.co/*",
+        "https://poe.com/*",
+        "https://chat.lmsys.org/*",
+        "https://chatforefront.com/*",
+        "https://www.phind.com/*",
+        "https://pi.ai/*",
+        "https://bard.google.com/*"
+      ],
+      "js": ["dist/content.js"],
+      "run_at": "document_idle",
+      "all_frames": true
     }
   ]
 }

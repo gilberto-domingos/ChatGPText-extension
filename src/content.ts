@@ -1,59 +1,141 @@
+// content.ts
 /// <reference types="chrome" />
 
-console.log("Text Expander content script carregado!");
+console.log("Text Expander content script loaded!");
 
 let expansions: Record<string, string> = {};
 
-// Carrega os atalhos do storage do Chrome
 function loadExpansions() {
   chrome.storage.sync.get("expansions", (data) => {
     expansions = data.expansions || {};
-    console.log("Expansions carregadas:", expansions);
+    console.log("Expansions loaded:", expansions);
   });
 }
 
-// Atualiza automaticamente se o storage for modificado
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area === "sync" && changes.expansions) {
     expansions = changes.expansions.newValue || {};
-    console.log("Expansions atualizadas dinamicamente:", expansions);
+    console.log("Expansions updated:", expansions);
   }
 });
 
 loadExpansions();
 
-document.addEventListener("input", (event) => {
-  const target = event.target as HTMLElement;
-  if (!target.isContentEditable) return;
+function detectInputType(
+  target: EventTarget | null
+): "input" | "textarea" | "contenteditable" | null {
+  if (!(target instanceof HTMLElement)) return null;
 
-  const text = target.innerText || "";
-  const words = text.split(/\s+/);
+  if (target.tagName === "TEXTAREA") return "textarea";
+  if (target.tagName === "INPUT") return "input";
+  if (target.isContentEditable) return "contenteditable";
+
+  return null;
+}
+
+function expandInInputField(
+  element: HTMLInputElement | HTMLTextAreaElement,
+  triggerWord: string,
+  replacement: string
+) {
+  const start = element.selectionStart || 0;
+  const value = element.value;
+
+  const left = value.substring(0, start);
+  const right = value.substring(start);
+
+  const regex = new RegExp(`\\b${triggerWord}$`);
+  if (!regex.test(left)) return;
+
+  const newLeft = left.replace(regex, replacement + " ");
+  element.value = newLeft + right;
+
+  const cursorPos = newLeft.length;
+  element.setSelectionRange(cursorPos, cursorPos);
+}
+
+function expandInContentEditable(
+  target: HTMLElement,
+  triggerWord: string,
+  replacement: string
+) {
+  const selection = window.getSelection();
+  if (!selection || !selection.rangeCount) return;
+
+  const range = selection.getRangeAt(0);
+  const node = range.startContainer;
+  const offset = range.startOffset;
+
+  let startOffset = offset;
+  while (startOffset > 0) {
+    const char = node.textContent?.[startOffset - 1];
+    if (!char || /\s/.test(char)) break;
+    startOffset--;
+  }
+
+  const word = node.textContent?.substring(startOffset, offset);
+  if (!word || !(word in expansions)) return;
+
+  range.setStart(node, startOffset);
+  range.setEnd(node, offset);
+  range.deleteContents();
+  range.insertNode(document.createTextNode(expansions[word] + " "));
+
+  range.collapse(false);
+  selection.removeAllRanges();
+  selection.addRange(range);
+}
+
+function handleInput(event: Event) {
+  const target = event.target;
+  const type = detectInputType(target);
+  if (!type) return;
+
+  if (!(target instanceof HTMLElement)) return;
+
+  let text = "";
+
+  if (type === "input" || type === "textarea") {
+    const field = target as HTMLInputElement | HTMLTextAreaElement;
+    const caret = field.selectionStart || 0;
+    text = field.value.substring(0, caret);
+  } else if (type === "contenteditable") {
+    text = target.innerText;
+  }
+
+  const words = text.trim().split(/\s+/);
   const lastWord = words[words.length - 1];
 
-  const expanded = expansions[lastWord];
-  if (expanded) {
-    const selection = window.getSelection();
-    if (!selection || !selection.rangeCount) return;
+  if (!lastWord || !(lastWord in expansions)) return;
 
-    const range = selection.getRangeAt(0);
-    const node = range.startContainer;
-    const offset = range.startOffset;
-
-    let startOffset = offset;
-    while (startOffset > 0) {
-      const char = node.textContent?.[startOffset - 1];
-      if (!char || /\s/.test(char)) break;
-      startOffset--;
-    }
-
-    range.setStart(node, startOffset);
-    range.setEnd(node, offset);
-
-    range.deleteContents();
-    range.insertNode(document.createTextNode(expanded + " "));
-
-    range.collapse(false);
-    selection.removeAllRanges();
-    selection.addRange(range);
+  if (type === "input" || type === "textarea") {
+    expandInInputField(
+      target as HTMLInputElement | HTMLTextAreaElement,
+      lastWord,
+      expansions[lastWord]
+    );
+  } else if (type === "contenteditable") {
+    expandInContentEditable(target, lastWord, expansions[lastWord]);
   }
-});
+}
+
+function observeDOMReadyAndAttach() {
+  const observer = new MutationObserver(() => {
+    const inputs = document.querySelectorAll(
+      "input, textarea, [contenteditable='true']"
+    );
+    if (inputs.length > 0) {
+      observer.disconnect();
+      document.addEventListener("input", handleInput);
+      console.log("📡 Universal input listener attached.");
+    }
+  });
+
+  observer.observe(document.body, { childList: true, subtree: true });
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", observeDOMReadyAndAttach);
+} else {
+  observeDOMReadyAndAttach();
+}
