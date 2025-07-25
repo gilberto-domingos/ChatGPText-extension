@@ -1,21 +1,21 @@
 // content.ts
 /// <reference types="chrome" />
 
-console.log("Text Expander content script loaded!");
+console.log("✅ Text Expander content script loaded!");
 
 let expansions: Record<string, string> = {};
 
 function loadExpansions() {
   chrome.storage.sync.get("expansions", (data) => {
     expansions = data.expansions || {};
-    console.log("Expansions loaded:", expansions);
+    console.log("📦 Expansions loaded:", expansions);
   });
 }
 
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area === "sync" && changes.expansions) {
     expansions = changes.expansions.newValue || {};
-    console.log("Expansions updated:", expansions);
+    console.log("🔁 Expansions updated:", expansions);
   }
 });
 

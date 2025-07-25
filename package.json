@@ -4,11 +4,11 @@
   "description": "Extensão Chrome para expandir atalhos de texto.",
   "main": "dist/background.js",
   "scripts": {
-    "build": "tsc && cp src/popup.html dist/",
+    "build": "tsc && cp -r public/* dist/",
     "clean": "rm -rf dist",
     "watch": "tsc --watch",
-    "copy:html": "chokidar 'src/popup.html' -c 'cp src/popup.html dist/popup.html'",
-    "dev": "concurrently -k \"npm run watch\" \"npm run copy:html\""
+    "copy:assets": "chokidar 'public/**/*' -c 'cp -r public/* dist/'",
+    "dev": "npm run build && concurrently -k \"npm run watch\" \"npm run copy:assets\""
   },
   "author": "Seu Nome",
   "license": "MIT",
