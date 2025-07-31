@@ -3,7 +3,7 @@
   "name": "Text Expander",
   "version": "1.0",
   "description": "Expande atalhos, configure 3 letras para frases grandes completas ou textos, exemplo: 'omw'  -> On my way",
-  "author": "by Gilberto Domingos",
+  "author": "Gilberto Domingos",
   "permissions": ["storage"],
   "action": {
     "default_popup": "dist/popup.html",
