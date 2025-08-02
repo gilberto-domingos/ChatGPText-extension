@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Text Expander",
-  "version": "1.0",
-  "description": "Expande atalhos, configure 3 letras para frases grandes completas ou textos, exemplo: 'omw'  -> On my way",
+  "name": "AI-Text-Expander",
+  "version": "1.1",
+  "description": "Extension created for use in AI, who need to repetitive expressions, example : 'omw'  -> 'On my way!, this big phrase or text.'",
   "author": "Gilberto Domingos",
   "permissions": ["storage"],
   "action": {
