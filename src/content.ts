@@ -1,28 +1,21 @@
-// content.ts
-/// <reference types="chrome" />
-
-console.log(" Text Expander content script loaded!");
-
 let expansions: Record<string, string> = {};
 
 function loadExpansions() {
   chrome.storage.sync.get("expansions", (data) => {
     expansions = data.expansions || {};
-    console.log("Expansions loaded:", expansions);
   });
 }
 
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area === "sync" && changes.expansions) {
     expansions = changes.expansions.newValue || {};
-    console.log("Expansions updated:", expansions);
   }
 });
 
 loadExpansions();
 
 function detectInputType(
-  target: EventTarget | null
+  target: EventTarget | null,
 ): "input" | "textarea" | "contenteditable" | null {
   if (!(target instanceof HTMLElement)) return null;
 
@@ -36,7 +29,7 @@ function detectInputType(
 function expandInInputField(
   element: HTMLInputElement | HTMLTextAreaElement,
   triggerWord: string,
-  replacement: string
+  replacement: string,
 ) {
   const start = element.selectionStart || 0;
   const value = element.value;
@@ -57,7 +50,7 @@ function expandInInputField(
 function expandInContentEditable(
   target: HTMLElement,
   triggerWord: string,
-  replacement: string
+  replacement: string,
 ) {
   const selection = window.getSelection();
   if (!selection || !selection.rangeCount) return;
@@ -112,7 +105,7 @@ function handleInput(event: Event) {
     expandInInputField(
       target as HTMLInputElement | HTMLTextAreaElement,
       lastWord,
-      expansions[lastWord]
+      expansions[lastWord],
     );
   } else if (type === "contenteditable") {
     expandInContentEditable(target, lastWord, expansions[lastWord]);
@@ -122,12 +115,11 @@ function handleInput(event: Event) {
 function observeDOMReadyAndAttach() {
   const observer = new MutationObserver(() => {
     const inputs = document.querySelectorAll(
-      "input, textarea, [contenteditable='true']"
+      "input, textarea, [contenteditable='true']",
     );
     if (inputs.length > 0) {
       observer.disconnect();
       document.addEventListener("input", handleInput);
-      console.log("📡 Universal input listener attached.");
     }
   });
 

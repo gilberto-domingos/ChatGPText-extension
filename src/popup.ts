@@ -1,8 +1,6 @@
-/// <reference types="chrome" />
-
 const shortcutInput = document.getElementById("shortcut") as HTMLInputElement;
 const expandedInput = document.getElementById(
-  "expanded"
+  "expanded",
 ) as HTMLTextAreaElement;
 const saveBtn = document.getElementById("save") as HTMLButtonElement;
 const list = document.getElementById("list") as HTMLDivElement;
