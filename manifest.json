@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "AI-Text-Expander",
-  "version": "1.2",
+  "name": "AI-Text-Expander-Pro",
+  "version": "1.2.1",
   "description": "Extension created for use in AI, who need to repetitive expressions, example : 'omw'  -> 'On my way!, this big phrase or text.'",
   "author": "Gilberto Domingos",
   "permissions": ["storage"],
